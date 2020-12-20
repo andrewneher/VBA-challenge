@@ -1,0 +1,112 @@
+Sub ticker()
+
+'Apply to each ws
+For Each ws In Worksheets
+
+'create loop for worksheets
+'Set an initial variables for dimensions
+'Dim worksheet_name As String
+Dim vol As Double
+Dim ticker_name As String
+Dim yearly_change As Double
+Dim percent_change As Double
+Dim previous_row_close As Double
+Dim open_value As Double
+Dim close_value As Double
+Dim start As Long
+
+'Set initial values
+'worksheet_name = ws.Name
+x = 2
+vol = 0
+start = 2
+
+'open_value = ws.Cells(2, 3).Value
+'closing_value = ws.Cells(i, 6).Value
+
+'Set locations for the output data
+ws.Range("I1") = "Ticker"
+ws.Range("J1") = "Yearly Change"
+ws.Range("K1") = "Percent Change"
+ws.Range("L1") = "Total Stock Volume"
+ws.Range("N2") = "Greatest % Increase"
+ws.Range("N3") = "Greatest % Decrease"
+ws.Range("N4") = "Greatest Total Volume"
+ws.Range("O1") = "Ticker"
+ws.Range("P1") = "Value"
+
+'Find endrow
+LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+LastSummaryRow = ws.Cells(Rows.Count, 10).End(xlUp).Row
+
+    'Look ahead
+    'Create loop for rows
+    'Loop through all ticker names
+    For i = 2 To LastRow
+      previous_row_close = ws.Cells(i, 6).Value
+      
+       'Check to see if the next row's ticker is not equal to current row's ticker
+       If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+          'Set variable for ticker name (Row, column 1)
+          TickerName = ws.Cells(i, 1).Value
+          
+          'Print ticker name into summary table
+          ws.Range("I" & x).Value = TickerName
+          
+          'Calculate volume
+          ws.Range("L" & x).Value = vol + ws.Cells(i, 7).Value
+          
+        If Cells(start, 3) = 0 Then
+            For NonzeroValue = start To i
+                If Cells(NonzeroValue, 3).Value <> 0 Then
+                    start = NonzeroValue
+                    Exit For
+                End If
+            Next NonzeroValue
+        End If
+          
+          'Calculate yearly change
+          yearly_change = ws.Cells(i, 6) - ws.Cells(start, 3).Value
+          ws.Range("J" & x).Value = Round(yearly_change, 2)
+          
+          'Calculate % change
+          percent_change = Round((yearly_change / ws.Cells(start, 3) * 100), 2)
+          ws.Range("K" & x).Value = "%" & percent_change
+          
+          'Add one to summary table row
+          x = x + 1
+          
+          'Reset values
+          vol = 0
+          yearly_change = 0
+          percent_change = 0
+          
+            'reset value change
+            'open_value = ws.Cells(i + 1, 3).Value
+            'closing_value = ws.Cells(i + 1, 6).Value
+            
+          'If the next cell matches the current cell,
+          Else
+             'Calculate values within matching cells
+             vol = vol + ws.Cells(i, 7).Value
+             ws.Range("J" & x).Value = yearly_change
+      End If
+    Next i
+    
+    For i = 2 To LastSummaryRow
+    'Set cells to Green for + and red for -
+        If ws.Cells(i, 10).Value >= 0 Then
+            ws.Cells(i, 10).Interior.ColorIndex = 4
+        ElseIf ws.Cells(i, 10).Value < 0 Then
+            ws.Cells(i, 10).Interior.ColorIndex = 3
+        End If
+        
+
+    Next i
+    Next ws
+    
+
+End Sub
+
+
+
